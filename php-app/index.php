@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Welcome to the LAMP Stack!</h1>
-    <p>This page is served by Apache and PHP.</p>
+    <p> THis is SAI KOUSHIK web-page.</p>
     <?php
         // Test PHP processing
         echo "<p>Current PHP version: " . phpversion() . "</p>";

@@ -1,28 +1,31 @@
----
-# tasks file for prometheus
-- name: Create Prometheus user
+# tasks/main.yml for prometheus role
+
+- name: Create Prometheus user and group
   user:
     name: prometheus
     shell: /bin/false
     create_home: no
     system: yes
 
-- name: Create Prometheus directories
+- name: Create Prometheus required directories
   file:
     path: "{{ item }}"
     state: directory
     owner: prometheus
     group: prometheus
     mode: '0755'
-  with_items:
+  loop:
     - /etc/prometheus
     - /var/lib/prometheus
+    - /etc/prometheus/consoles
+    - /etc/prometheus/console_libraries
 
-- name: Download and unarchive Prometheus
+- name: Download and extract Prometheus archive
   unarchive:
-    src: https://github.com/prometheus/prometheus/releases/download/v2.51.1/prometheus-2.51.1.linux-amd64.tar.gz
+    src: "https://github.com/prometheus/prometheus/releases/download/v2.51.1/prometheus-2.51.1.linux-amd64.tar.gz"
     dest: /tmp/
     remote_src: yes
+    creates: /tmp/prometheus-2.51.1.linux-amd64
 
 - name: Copy Prometheus binaries
   copy:
@@ -32,34 +35,37 @@
     mode: '0755'
     owner: prometheus
     group: prometheus
-  with_items:
+  loop:
     - prometheus
     - promtool
 
-- name: Copy Prometheus config files
+- name: Copy console files
   copy:
     src: "/tmp/prometheus-2.51.1.linux-amd64/{{ item }}"
     dest: "/etc/prometheus/{{ item }}"
     remote_src: yes
     owner: prometheus
     group: prometheus
-  with_items:
+    mode: '0755'
+  loop:
     - consoles
     - console_libraries
 
-- name: Create Prometheus configuration
+- name: Deploy Prometheus configuration
   template:
     src: prometheus.yml.j2
     dest: /etc/prometheus/prometheus.yml
     owner: prometheus
     group: prometheus
+    mode: '0644'
 
-- name: Create Prometheus service file
+- name: Deploy Prometheus systemd service
   template:
     src: prometheus.service.j2
     dest: /etc/systemd/system/prometheus.service
+    mode: '0644'
 
-- name: Start and enable Prometheus service
+- name: Reload systemd and start Prometheus
   systemd:
     name: prometheus
     state: started
