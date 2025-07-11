@@ -1,6 +1,11 @@
+- name: Remove Apache default index.html
+  file:
+    path: /var/www/html/index.html
+    state: absent
+
 - name: Copy sample PHP app to web root
   copy:
-    src: ../../../../sample-php-app/index.php
+    src: ../php-app/index.php
     dest: /var/www/html/index.php
     owner: www-data
     group: www-data

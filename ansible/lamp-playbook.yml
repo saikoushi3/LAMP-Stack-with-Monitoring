@@ -1,0 +1,22 @@
+- name: Configure LAMP Server
+  hosts: lamp_server
+  become: yes
+  roles:
+    - lamp
+  tags: lamp
+
+
+- name: Install Monitoring on LAMP Server
+  hosts: lamp_server
+  become: yes
+  roles:
+    - monitoring
+  tags: monitoring
+    
+
+- name: Configure Prometheus Server
+  hosts: prometheus_server
+  become: yes
+  roles:
+    - prometheus
+  tags: prometheus
